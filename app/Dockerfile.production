@@ -1,0 +1,20 @@
+# Dockerfile.production
+FROM node:20-alpine
+
+# Рабочая директория в контейнере
+WORKDIR /usr/src/app
+
+# Копируем только package.json и package-lock.json для установки зависимостей
+COPY package*.json ./
+
+# Устанавливаем зависимости
+RUN npm install --production
+
+# Копируем весь остальной код
+COPY . .
+
+# Прописываем порт, который будет слушать Fastify
+EXPOSE 3000
+
+# Команда запуска
+CMD ["node", "index.js"]
