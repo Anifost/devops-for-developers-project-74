@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile.production
     image: anifost/devops-for-developers-project-74
-    command: make test
+    command: npm run dev   # запуск Fastify
     environment:
       DATABASE_HOST: db
       DATABASE_NAME: postgres
@@ -13,6 +13,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    ports:
+      - "8080:8080"  # для теста без Caddy
+    networks:
+      - backend
 
   db:
     image: postgres:latest
@@ -25,3 +29,21 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    depends_on:
+      - app
+    networks:
+      - backend
+
+networks:
+  backend:

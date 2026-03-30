@@ -1,29 +1,34 @@
-setup:
-	docker-compose run --rm app make setup
+setup: install db-migrate
 
-up-exist:
-	docker compose up --abort-on-container-exist
+install:
+	npm install
+
+db-migrate:
+	npm run migrate
+
+build:
+	npm run build
+
+prepare-env:
+	cp -n .env.example .env
 
 start:
-	docker compose up
-
-down:
-	docker compose down
-
-test:
-	docker compose -f docker-compose.yml up --abort-on-container-exit
+	NODE_ENV=production npm run start
 
 dev:
-	docker-compose up
+	npx concurrently "make start-frontend" "make start-backend"
 
-ci:
-	docker-compose -f docker-compose.yml up --abort-on-container-exit
+start-backend:
+	npm start -- --watch --verbose-watch --ignore-watch='node_modules .git .sqlite'
 
-ci-build:
-	docker compose -f docker-compose.yml build app
+start-frontend:
+	npx webpack --watch --progress
 
-push prod-push:
-	docker compose -f docker-compose.yml push app
+lint:
+	npx eslint .
 
-prod-build:
-	docker compose -f docker-compose.yml build app
+lint-fix:
+	npx eslint --fix .
+
+test:
+	NODE_ENV=test npm test -s

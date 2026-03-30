@@ -1,25 +1,13 @@
-.PHONY: setup test dev build push ci
+setup: prepare-env
+	docker compose run --rm app make setup
 
-# Установка зависимостей внутри контейнера
-setup:
-	docker compose run --rm app npm install
+prepare-env:
+	cp -n .env.example .env
 
-# Запуск тестов внутри контейнера
-test:
-	docker compose run --rm app npm run test
+start:
+	docker compose up --abort-on-container-exit
 
-# Разработка: поднятие контейнеров и запуск приложения
-dev:
-	docker compose up
+test: ci
 
-# Сборка проекта
-build:
-	docker compose run --rm app npm run build
-
-# Отправка образа на Docker Hub (если нужно)
-push:
-	docker compose run --rm app npm run push
-
-# CI-процесс: миграции и тесты
 ci:
-	docker compose run --rm app npm run migrate && npm run test
+	docker compose -f docker-compose.yml up --abort-on-container-exit --exit-code-from app
