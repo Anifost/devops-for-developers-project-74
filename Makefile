@@ -1,13 +1,28 @@
-setup: prepare-env
+setup: setup-env
 	docker compose run --rm app make setup
 
-prepare-env:
+setup-env:
 	cp -n .env.example .env
 
-start:
+check-start:
 	docker compose up --abort-on-container-exit
 
-test: ci
+start:
+	docker compose up
 
-ci:
+down:
+	docker compose down
+
+test:
 	docker compose -f docker-compose.yml up --abort-on-container-exit --exit-code-from app
+
+ci: test
+
+prod-build:
+	docker compose -f docker-compose.yml build app
+
+prod-push:
+	docker compose -f docker-compose.yml push app
+
+run-image:
+	docker run -p 8080:8080 -e NODE_ENV=development Oligkondr/devops-for-developers-project-74 make dev
